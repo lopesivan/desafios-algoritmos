@@ -1,0 +1,23 @@
+[
+  {
+    "arguments": [
+      "/home/linuxbrew/.linuxbrew/bin/g++-14",
+      "-std=c++23",
+      "-g",
+      "-O0",
+      "-Wall",
+      "-Werror",
+      "-Wextra",
+      "-Wshadow",
+      "-Wpedantic",
+      "-Wno-parentheses",
+      "-c",
+      "-o",
+      "main.o",
+      "main.cpp"
+    ],
+    "directory": "/workspace/kiko/desafios-algoritmos/questao1/cpp/23a",
+    "file": "/workspace/kiko/desafios-algoritmos/questao1/cpp/23a/main.cpp",
+    "output": "/workspace/kiko/desafios-algoritmos/questao1/cpp/23a/main.o"
+  }
+]
