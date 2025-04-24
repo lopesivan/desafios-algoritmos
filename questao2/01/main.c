@@ -65,7 +65,7 @@ void procurar(const char *palavra)
             // Direção: Horizontal direita
             if (busca_palavra(palavra, i, j, 0, 1))
             {
-                printf("Encontrou \"%s\" na Horizontal direita (->) em "
+                printf("Encontrou \"%s\" na Horizontal direita (→) em "
                        "(%d,%d)\n",
                        palavra, i, j);
             }
@@ -73,7 +73,7 @@ void procurar(const char *palavra)
             // Direção: Vertical para baixo
             if (busca_palavra(palavra, i, j, 1, 0))
             {
-                printf("Encontrou \"%s\" na Vertical para baixo () em "
+                printf("Encontrou \"%s\" na Vertical para baixo (↓) em "
                        "(%d,%d)\n",
                        palavra, i, j);
             }

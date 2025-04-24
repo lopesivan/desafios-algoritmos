@@ -1,112 +1,97 @@
-Vamos construir **um gerador de caça-palavras em C**,
-onde você:
-
-✅ Define o tamanho da matriz
-✅ Escolhe palavras
-✅ Escolhe a direção de inserção:
-- Horizontal
-- Vertical
-- Diagonal inferior-direita (↘️)
-- Diagonal superior-direita (↗️)
+Seu algoritmo atual percorre a **matriz inteira (LIN × COL ×
+4 direções)** para cada palavra — o que funciona bem para
+matrizes pequenas, mas pode ser **otimizado** para situações
+maiores ou com muitas palavras.
 
 ---
 
-## 🧠 Estratégia:
+## 🧠 Primeiro: seu algoritmo atual (resumo)
 
-1. Criar uma matriz `char grid[LIN][COL]` com tamanho `N×M`
-2. Preencher com `'_'` ou letras aleatórias
-3. Para cada palavra:
-   - Escolher posição inicial
-   - Escolher direção: `(dx, dy)`
-   - Verificar se cabe
-   - Inserir na matriz
+Para cada célula `(i, j)`, e para cada palavra, tenta
+encontrar a palavra nas direções:
+
+- → direita
+- ↓ para baixo
+- ↘ diagonal inferior-direita
+- ↗ diagonal superior-direita
+
+Isso dá uma **complexidade O(LIN × COL × D × L)** por palavra:
+
+- LIN × COL → tamanho da matriz
+- D = 4 → número de direções
+- L → comprimento da palavra
 
 ---
 
-## ✅ Código base para gerar a matriz e inserir palavras
+## ⚡ Agora: ideias para otimização
+
+### ✅ 1. **Pré-filtrar por primeira letra**
+Antes de tentar todas as direções, só testa células onde
+o caractere **bate com o primeiro caractere da palavra**:
 
 ```c
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-
-#define N 10
-#define M 10
-
-char grid[N][M];
-
-void inicializar_grade() {
-    for (int i = 0; i < N; i++)
-        for (int j = 0; j < M; j++)
-            grid[i][j] = '_'; // ou letra aleatória
+if (grid[i][j] == palavra[0]) {
+    // agora sim testa direções
 }
+```
 
-int cabe_na_grade(const char *palavra, int x, int y, int dx, int dy) {
-    int len = strlen(palavra);
-    for (int i = 0; i < len; i++) {
-        int xi = x + i * dx;
-        int yi = y + i * dy;
-        if (xi < 0 || xi >= N || yi < 0 || yi >= M)
-            return 0;
-        if (grid[xi][yi] != '_' && grid[xi][yi] != palavra[i])
-            return 0;
-    }
-    return 1;
-}
+⬅️ Essa simples checagem já corta muitos testes desnecessários.
 
-void inserir_palavra(const char *palavra, int x, int y, int dx, int dy) {
-    int len = strlen(palavra);
-    for (int i = 0; i < len; i++) {
-        int xi = x + i * dx;
-        int yi = y + i * dy;
-        grid[xi][yi] = palavra[i];
+---
+
+### ✅ 2. **Compactar as direções com um loop**
+
+Ao invés de 4 `if`s separados, usa uma tabela de direções e faz:
+
+```c
+int dirs[4][2] = {
+    {0, 1},   // →
+    {1, 0},   // ↓
+    {1, 1},   // ↘
+    {-1, 1},  // ↗
+};
+
+for (int d = 0; d < 4; d++) {
+    if (busca_palavra(palavra, i, j, dirs[d][0], dirs[d][1])) {
+        // imprime posição e direção
     }
 }
+```
 
-void mostrar_grade() {
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < M; j++)
-            printf("%c ", grid[i][j]);
-        printf("\n");
-    }
-}
+Mais limpo e evita repetição.
 
-int main() {
-    srand(time(NULL));
-    inicializar_grade();
+---
 
-    // Inserção manual
-    inserir_palavra("casa", 0, 0, 0, 1); // horizontal
-    inserir_palavra("ola", 0, 0, 1, 0);  // vertical
-    inserir_palavra("paz", 1, 1, 1, 1);  // diagonal ↘️
-    inserir_palavra("lua", 5, 2, -1, 1); // diagonal ↗️
+### ✅ 3. **Prefix Trie (avançado)**
 
-    mostrar_grade();
-    return 0;
+Para múltiplas palavras, um **Trie (árvore de prefixo)** pode ser usado:
+
+- Ao invés de verificar uma palavra por vez,
+- Você percorre a matriz e **caminha em um Trie** de palavras válidas
+- Isso permite buscar **várias palavras ao mesmo tempo**
+
+✅ Usado em **Wordament**, **Boggle**, etc.
+
+---
+
+### ✅ 4. **Stop early**
+
+Se você não precisa de todas as ocorrências, só a **primeira**, pode:
+
+```c
+if (busca_palavra(...)) {
+    return;
 }
 ```
 
 ---
 
-### 🧭 Direções (dx, dy):
+## 🧪 Benchmark mental:
 
-| Direção              | dx | dy |
-|----------------------|----|----|
-| Horizontal direita   | 0  | 1  |
-| Vertical para baixo  | 1  | 0  |
-| Diagonal ↘️          | 1  | 1  |
-| Diagonal ↗️          | -1 | 1  |
+Com pré-filtragem por primeira letra, você reduz a busca
+para só onde há potencial real.
 
----
-
-### ⚠️ Validação:
-Antes de inserir, sempre use `cabe_na_grade(...)` para evitar
-sobrescritas ou ultrapassar os limites.
+Com Trie, você ganha **drasticamente** quando há **muitas
+palavras e sobreposições**.
 
 ---
-
-Se quiser automatizar a **escolha aleatória de direção
-e posição**, ou preencher o resto da matriz com letras
-aleatórias depois, posso te mostrar também. Deseja seguir
-por aí?
